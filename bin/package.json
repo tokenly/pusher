@@ -1,0 +1,23 @@
+{
+  "name": "pusher",
+  "version": "0.0.0",
+  "description": "Websocket messaging",
+  "main": "pusher.js",
+  "dependencies": {
+    "faye": "^1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tokenly/pusher"
+  },
+  "author": "Devon Weller",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tokenly/pusher/issues"
+  },
+  "homepage": "https://github.com/tokenly/pusher"
+}
