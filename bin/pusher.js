@@ -33,9 +33,9 @@
     return console.log('[SUBSCRIBE] ' + clientId + ' -> ' + channel);
   });
 
-  console.log("subscribing to http://" + pusherHost + ":" + pusherPort + "/public");
+  console.log("subscribing to http://localhost:" + pusherPort + "/public");
 
-  client = new faye.Client("http://" + pusherHost + ":" + pusherPort + "/public");
+  client = new faye.Client("http://localhost:" + pusherPort + "/public");
 
   n = 0;
 
@@ -44,7 +44,6 @@
     res = client.publish('/tick', {
       ts: Date.now()
     });
-    console.log("sending tick " + (Date.now()), res);
-  }, 5000);
+  }, 30000);
 
 }).call(this);
