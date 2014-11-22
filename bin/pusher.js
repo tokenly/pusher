@@ -40,10 +40,11 @@
   n = 0;
 
   setInterval(function() {
-    console.log("sending tick " + (Date.now()));
-    return client.publish('/tick', {
+    var res;
+    res = client.publish('/tick', {
       ts: Date.now()
     });
+    console.log("sending tick " + (Date.now()), res);
   }, 5000);
 
 }).call(this);

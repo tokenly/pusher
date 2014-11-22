@@ -24,7 +24,8 @@ console.log "subscribing to http://#{pusherHost}:#{pusherPort}/public"
 client = new faye.Client("http://#{pusherHost}:#{pusherPort}/public")
 n = 0
 setInterval ()->
-    console.log "sending tick #{Date.now()}"
-    client.publish('/tick', {ts: Date.now()})
+    res = client.publish('/tick', {ts: Date.now()})
+    console.log "sending tick #{Date.now()}",res
+    return
 , 5000
 # , 30000
