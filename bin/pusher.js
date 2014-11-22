@@ -33,6 +33,8 @@
     return console.log('[SUBSCRIBE] ' + clientId + ' -> ' + channel);
   });
 
+  console.log("subscriing to http://" + pusherHost + ":" + pusherPort + "/public");
+
   client = new faye.Client("http://" + pusherHost + ":" + pusherPort + "/public");
 
   n = 0;
