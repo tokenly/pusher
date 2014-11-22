@@ -20,9 +20,10 @@ server.listen(pusherPort)
 bayeux.on 'subscribe', (clientId, channel)->
     console.log('[SUBSCRIBE] ' + clientId + ' -> ' + channel)
 
-console.log "subscriing to http://#{pusherHost}:#{pusherPort}/public"
+console.log "subscribing to http://#{pusherHost}:#{pusherPort}/public"
 client = new faye.Client("http://#{pusherHost}:#{pusherPort}/public")
 n = 0
 setInterval ()->
     client.publish('/tick', {ts: Date.now()})
-, 30000
+, 5000
+# , 30000
