@@ -7,11 +7,13 @@
  */
 
 (function() {
-  var bayeux, client, faye, http, n, pusherHost, pusherPort, server;
+  var bayeux, client, faye, http, n, pusherHost, pusherPort, secret, server;
 
   pusherPort = process.env.PUSHER_PORT || 8200;
 
   pusherHost = process.env.PUSHER_HOST || "localhost";
+
+  secret = process.env.PUSHER_PASSWORD || '';
 
   http = require('http');
 
@@ -22,6 +24,27 @@
   bayeux = new faye.NodeAdapter({
     mount: '/public'
   });
+
+  if (secret.length > 0) {
+    bayeux.addExtension({
+      incoming: function(message, callback) {
+        var password, _ref;
+        if (!message.channel.match(/^\/meta\//)) {
+          password = (_ref = message.ext) != null ? _ref.password : void 0;
+          if (password !== secret) {
+            message.error = '403::Password required';
+          }
+        }
+        callback(message);
+      },
+      outgoing: function(message, callback) {
+        if (message.ext) {
+          delete message.ext.password;
+        }
+        callback(message);
+      }
+    });
+  }
 
   console.log("starting server on port " + pusherPort);
 

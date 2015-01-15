@@ -6,12 +6,31 @@
 
 pusherPort = process.env.PUSHER_PORT or 8200
 pusherHost = process.env.PUSHER_HOST or "localhost"
+secret = process.env.PUSHER_PASSWORD or ''
+
 
 http = require('http')
 faye = require('faye')
 
 server = http.createServer()
 bayeux = new faye.NodeAdapter({mount: '/public'})
+
+
+if secret.length > 0
+    bayeux.addExtension({
+        incoming: (message, callback)->
+            if not message.channel.match(/^\/meta\//)
+                password = message.ext?.password
+                if password != secret
+                    message.error = '403::Password required'
+            callback(message)
+            return
+
+        outgoing: (message, callback)->
+            delete message.ext.password if (message.ext)
+            callback(message)
+            return
+    })
 
 console.log "starting server on port #{pusherPort}"
 bayeux.attach(server)
