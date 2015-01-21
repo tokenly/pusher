@@ -4,6 +4,7 @@
   "description": "Websocket messaging",
   "main": "pusher.js",
   "dependencies": {
+    "figlet": "^1.1.0",
     "faye": "^1"
   },
   "devDependencies": {},

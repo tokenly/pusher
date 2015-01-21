@@ -7,13 +7,15 @@
  */
 
 (function() {
-  var bayeux, client, faye, http, n, pusherHost, pusherPort, secret, server;
+  var bayeux, debug, faye, figlet, http, pusherHost, pusherPort, run, secret, server;
 
   pusherPort = process.env.PUSHER_PORT || 8200;
 
-  pusherHost = process.env.PUSHER_HOST || "localhost";
-
   secret = process.env.PUSHER_PASSWORD || '';
+
+  debug = process.env.DEBUG || false;
+
+  pusherHost = "localhost";
 
   http = require('http');
 
@@ -25,6 +27,8 @@
     mount: '/public'
   });
 
+  figlet = require('figlet');
+
   if (secret.length > 0) {
     bayeux.addExtension({
       incoming: function(message, callback) {
@@ -32,7 +36,14 @@
         if (!message.channel.match(/^\/meta\//)) {
           password = (_ref = message.ext) != null ? _ref.password : void 0;
           if (password !== secret) {
+            if (debug) {
+              console.log("bad password: " + password);
+            }
             message.error = '403::Password required';
+          } else {
+            if (debug) {
+              console.log("message received", message);
+            }
           }
         }
         callback(message);
@@ -46,27 +57,34 @@
     });
   }
 
-  console.log("starting server on port " + pusherPort);
+  run = function() {
+    var client, n;
+    console.log("starting server on port " + pusherPort);
+    bayeux.attach(server);
+    server.listen(pusherPort);
+    bayeux.on('subscribe', function(clientId, channel) {
+      console.log("[SUBSCRIBE] " + clientId + " -> " + channel);
+    });
+    console.log("subscribing to http://" + pusherHost + ":" + pusherPort + "/public");
+    client = new faye.Client("http://" + pusherHost + ":" + pusherPort + "/public");
+    n = 0;
+    return setInterval(function() {
+      var res;
+      res = client.publish('/tick', {
+        ts: Date.now()
+      });
+      if (debug) {
+        console.log("sending tick " + (Date.now()), res);
+      }
+    }, 30000);
+  };
 
-  bayeux.attach(server);
-
-  server.listen(pusherPort);
-
-  bayeux.on('subscribe', function(clientId, channel) {
-    return console.log('[SUBSCRIBE] ' + clientId + ' -> ' + channel);
+  figlet.text('Tokenly Pusher', 'Slant', function(err, data) {
+    process.stdout.write(data + "\n\n");
   });
 
-  console.log("subscribing to http://localhost:" + pusherPort + "/public");
-
-  client = new faye.Client("http://localhost:" + pusherPort + "/public");
-
-  n = 0;
-
-  setInterval(function() {
-    var res;
-    res = client.publish('/tick', {
-      ts: Date.now()
-    });
-  }, 30000);
+  setTimeout(function() {
+    return run();
+  }, 10);
 
 }).call(this);

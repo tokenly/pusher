@@ -5,8 +5,10 @@
 ###
 
 pusherPort = process.env.PUSHER_PORT or 8200
-pusherHost = process.env.PUSHER_HOST or "localhost"
 secret = process.env.PUSHER_PASSWORD or ''
+debug = process.env.DEBUG or false
+
+pusherHost = "localhost"
 
 
 http = require('http')
@@ -15,6 +17,10 @@ faye = require('faye')
 server = http.createServer()
 bayeux = new faye.NodeAdapter({mount: '/public'})
 
+figlet = require('figlet');
+
+###############################################################
+# SETUP
 
 if secret.length > 0
     bayeux.addExtension({
@@ -22,7 +28,10 @@ if secret.length > 0
             if not message.channel.match(/^\/meta\//)
                 password = message.ext?.password
                 if password != secret
+                    if debug then console.log "bad password: #{password}"
                     message.error = '403::Password required'
+                else
+                    if debug then console.log "message received",message
             callback(message)
             return
 
@@ -32,18 +41,36 @@ if secret.length > 0
             return
     })
 
-console.log "starting server on port #{pusherPort}"
-bayeux.attach(server)
-server.listen(pusherPort)
+###############################################################
+# Run
 
-bayeux.on 'subscribe', (clientId, channel)->
-    console.log('[SUBSCRIBE] ' + clientId + ' -> ' + channel)
+run = ()->
+    console.log "starting server on port #{pusherPort}"
+    bayeux.attach(server)
+    server.listen(pusherPort)
 
-console.log "subscribing to http://localhost:#{pusherPort}/public"
-client = new faye.Client("http://localhost:#{pusherPort}/public")
-n = 0
-setInterval ()->
-    res = client.publish('/tick', {ts: Date.now()})
-    # console.log "sending tick #{Date.now()}",res
+    bayeux.on 'subscribe', (clientId, channel)->
+        console.log("[SUBSCRIBE] #{clientId} -> #{channel}")
+        return
+
+    console.log "subscribing to http://#{pusherHost}:#{pusherPort}/public"
+    client = new faye.Client("http://#{pusherHost}:#{pusherPort}/public")
+    n = 0
+    setInterval ()->
+        res = client.publish('/tick', {ts: Date.now()})
+        if debug then console.log "sending tick #{Date.now()}",res
+        return
+    , 30000
+
+
+###############################################################
+# Init
+
+figlet.text('Tokenly Pusher', 'Slant', (err, data)->
+    process.stdout.write(data+"\n\n")
     return
-, 30000
+)
+
+setTimeout ()->
+    run()
+, 10
