@@ -55,12 +55,12 @@ run = ()->
 
     console.log "subscribing to http://#{pusherHost}:#{pusherPort}/public"
     client = new faye.Client("http://#{pusherHost}:#{pusherPort}/public")
-    n = 0
-    setInterval ()->
-        res = client.publish('/tick', {ts: Date.now()})
-        if debug then console.log "sending tick #{Date.now()}",res
-        return
-    , 30000
+    # n = 0
+    # setInterval ()->
+    #     res = client.publish('/tick', {ts: Date.now()})
+    #     if debug then console.log "sending tick #{Date.now()}",res
+    #     return
+    # , 30000
 
 
 ###############################################################

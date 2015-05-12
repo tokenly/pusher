@@ -58,7 +58,7 @@
   }
 
   run = function() {
-    var client, n;
+    var client;
     console.log("starting server on port " + pusherPort);
     bayeux.attach(server);
     server.listen(pusherPort);
@@ -66,17 +66,7 @@
       console.log("[SUBSCRIBE] " + clientId + " -> " + channel);
     });
     console.log("subscribing to http://" + pusherHost + ":" + pusherPort + "/public");
-    client = new faye.Client("http://" + pusherHost + ":" + pusherPort + "/public");
-    n = 0;
-    return setInterval(function() {
-      var res;
-      res = client.publish('/tick', {
-        ts: Date.now()
-      });
-      if (debug) {
-        console.log("sending tick " + (Date.now()), res);
-      }
-    }, 30000);
+    return client = new faye.Client("http://" + pusherHost + ":" + pusherPort + "/public");
   };
 
   figlet.text('Tokenly Pusher', 'Slant', function(err, data) {
